@@ -6,9 +6,9 @@ str [msg] {
 
 "once :"  [CurrentDir] { CurrentDir=Directory.GetCurrentDirectory(); } ,
 
-[getopt]{ var opt = stack as Dictionary<String, Func<string,string>>;
+[getopt]{ var opt = stack as dynamic;
     var c = cs.commandLine;
-    getopt = (opt.containsKey(c[0]) ?opt[c[0]](c[1]):opt[""](c[0]));  
+    getopt = (opt.ContainsKey(c[0]) ?opt[c[0]](c[1]):opt[""](c[0]));  
 }
 
 [upload] { upload =  stack + " : toCloud"; }
@@ -25,6 +25,8 @@ str [msg] {
 
         return cs.str.msg + cs.getopt(options);  
 }
+
+[onerror] { return js.str.usage;}
 
 str [usage] {
 usage :    

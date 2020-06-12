@@ -20,6 +20,10 @@ var loadFile = std.loadFile;
 var js=getRoot();
 
 js.commandLine = scriptArgs.slice(2);
-
-js.WON(loadFile(scriptArgs[1]));
-console.log(js.toString());
+try{
+    js.WON(loadFile(scriptArgs[1]));
+    console.log(js.toString());
+}catch(ex){
+    console.log(ex);
+    if (js.hasOwnProperty("onerror"))js.onerror(ex);
+}

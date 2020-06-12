@@ -1,5 +1,4 @@
-using System; using System.IO; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Net; using System.Web; using System.Dynamic;
-using System.Reflection; using Microsoft.CSharp; using System.CodeDom.Compiler;
+using System; using System.IO; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Net; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp; using System.CodeDom.Compiler;
 
 namespace TwoSine{
 
@@ -7,40 +6,109 @@ namespace TwoSine{
 
         public static string empty = "";
 
-        public string after(this string s, string a){
-            if (s.indexOf(a)>-1)return s.Substring(s.indexOf(a)+a.length);else return Strings.empty;}
+        public static string after(this string s, string a)
+        {
+            if (s.IndexOf(a)>-1) return s.Substring(s.IndexOf(a) + a.Length);
+            else return Strings.empty;
+        }
 
-        public string before(this string s, string b){
-            if (s.indexOf(b)>-1) return s.Substring(0, s.indexOf(b)); else return Strings.empty;}
+        public static string before(this string s, string b)
+        {
+            if (s.IndexOf(b)>-1) return s.Substring(0, s.IndexOf(b)); 
+            else return Strings.empty;
+        }
 
-        public string replace(this string s, string a, string b){
-            return String.Join(s.Split(a), b);}
+        public static string replace(this string s, string a, string b)
+        {
+            return String.Join(b, s.Split(a));
+        }
 
     }
 
     public class Whole{
-        public static void Main(string [] arguments){
-            for(var s in arguments){
-                try{
+        
+        public static dynamic cs = new Wise();
+
+        public static string eval(string code)
+        {
+                CSharpCodeProvider provider = new CSharpCodeProvider();
+                CompilerParameters parameters = new CompilerParameters();
+            
+
+            code = "using System; using System.IO; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp;\n"+
+                " namespace TwoSine{public class Code{public static string Block(string stack){ "+code+" return \"\"; }}} ";
+
+            parameters.GenerateInMemory = true;
+            parameters.GenerateExecutable = false;
+            parameters.ReferencedAssemblies.Add("System.Core.dll");
+            parameters.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
+            parameters.ReferencedAssemblies.Add("System.Drawing.dll");
+            parameters.ReferencedAssemblies.Add("System.Web.dll");
+            parameters.ReferencedAssemblies.Add("System.Net.dll");
+
+            CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
+            if (results.Errors.HasErrors)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (CompilerError error in results.Errors)
+                {
+                    sb.AppendLine(String.Format("Compile [{0}] {1}", error.ErrorNumber, error.ErrorText));
+                }
+                throw new InvalidOperationException(sb.ToString());
+            }
+            
+
+            Assembly assembly = results.CompiledAssembly;
+            Type codeType = assembly.GetType("TwoSine.Code");
+            MethodInfo block = codeType.GetMethod("Block");
+            return block.Invoke(codeType, new object[]{""}).ToString();
+        }
+
+        public static void Main(string [] arguments)
+        {
+            
+            foreach(string s in arguments)
+            {
+                try
+                {
                     string script = Encoding.UTF8.GetString(File.ReadAllBytes(s));
-                    dynamic cs = new Wise();
+                    
 
                     //cs.loader("load", "Encoding.UTF8.GetString(File.ReadAllBytes(added));");
                     //cs.module("write","(name, code) => { File.WriteAllBytes(name, Encoding.UTF8.GetBytes(code));}");
                     //cs.module("str","(name, code) => {this.name = code;} ");
                     //cs.module("cs","(name, code) => {cs.name = eval(code);} ");
-
+                    Console.WriteLine(eval("return \"This is a sample code from \" + \" eval.\";"));
                     cs.WON(script);
-                }catch(Exception ex){Console.WriteLine(ex);}
+                    
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    if (cs.hasOwnProperty("onerror"))
+                        cs.onerror(ex);
+                }
+
             }
-            Console.WriteLine(cs);
+
+            try
+            {
+                Console.WriteLine(cs);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+                if (cs.hasOwnProperty("onerror"))
+                    cs["onerror"](ex);
+            }
         }
     }
 
-    public class Wise : DynamicObject{
+public class Wise : DynamicObject
+{
     
     Dictionary<string, dynamic> dictionary = new Dictionary<string, dynamic>();
-    List<string> stackList = new List<string>();
+    List<string> list = new List<string>();
 
 
     private delegate string load(string added);
@@ -63,7 +131,7 @@ namespace TwoSine{
         indexing = defaultIndexer;
         filtering = defaultFilter;
 
-        stackList.AddRange(stack);
+        list.AddRange(stack);
     }
 
     public Wise(object stack){
@@ -72,11 +140,11 @@ namespace TwoSine{
         indexing = defaultIndexer;
         filtering = defaultFilter;
 
-        Type type = stack.GetType();
-        FieldInfo[] field = type.GetFields();
-        PropertyInfo[] myPropertyInfo = type.GetProperties();
+            Type type = stack.GetType();
+            FieldInfo[] field = type.GetFields();
+            PropertyInfo[] myPropertyInfo = type.GetProperties();
 
-        String value = null;
+            String value = null;
 
         foreach (var propertyInfo in myPropertyInfo)
         {
@@ -86,6 +154,11 @@ namespace TwoSine{
                 dictionary.Add(propertyInfo.Name.ToString(), value);
             }
         }
+    }
+
+    public bool hasOwnProperty(string property)
+    {
+        return dictionary.ContainsKey(property);
     }
 
     public void setLoading(string code){
@@ -102,52 +175,74 @@ namespace TwoSine{
         return added;
     }
 
-    private void defaultFilter(string those, string stack, ref String result) {
-        string filterName = result + "";
+    private void defaultFilter(string those, string stack, ref String result) 
+    {
+            string filterName = result + "";
 
-        if (filterName!="")
-            filterName += ",";
+        if (filterName!="") filterName += ",";
+
         filterName += those;
 
         result = filterName;
     }
 
-    private void defaultIndexer(string name, string code) {
-        load newFilter = (stack) => {string result = "";
-            foreach(string those in stackList){ 
+    private void defaultIndexer(string name, string code) 
+    {
+        load newFilter = (stack) => {
+                
+                string result = "";
+
+            foreach(string those in list){ 
                 filtering(those, stack, ref result); }
+
             return result;
+
         };
+
         dictionary[name] = newFilter;
     }
 
 
     public override bool TryGetMember(GetMemberBinder binder, out object result)
-    {return dictionary.TryGetValue(binder.Name.ToLower(), out result);}
+    {
+        return dictionary.TryGetValue(binder.Name.ToLower(), out result);
+    }
 
     public override bool TrySetMember(SetMemberBinder binder, object value)
-    {dictionary[binder.Name.ToLower()] = value;return true;}
+    {
+        dictionary[binder.Name.ToLower()] = value;return true;
+    }
 
     public override bool TryGetIndex (System.Dynamic.GetIndexBinder binder, object[] indexes, out object result)
     {
-        int index = (int)indexes[0];
-        try{
-            result = stackList[index];
+            int index = (int)indexes[0];
+
+        try
+        {
+            result = list[index];
             return true;
-        }catch(Exception ex){
+
+        }
+        catch(Exception ex)
+        {
             Console.WriteLine(ex);
         }
+
         result = null;
         return false;
     }
 
     public override bool TrySetIndex (System.Dynamic.SetIndexBinder binder, object[] indexes, object value)
     {
-        int index = (int)indexes[0];
-        try{
-            stackList[index] = "" +(value);
+            int index = (int)indexes[0];
+
+        try
+        {
+            list[index] = "" +(value);
             return true;
-        }catch(Exception ex){
+
+        }catch(Exception ex)
+        {
             Console.WriteLine(ex);
             return false;
         }
@@ -158,7 +253,7 @@ namespace TwoSine{
     }
 
     public void add(string added){
-        stackList.Add(reloading(added));
+        list.Add(reloading(added));
     }
 
     public string first
@@ -166,13 +261,13 @@ namespace TwoSine{
         get
         {
             index = 0;
-            return stackList[index];
+            return list[index];
         }
 
         set
         {   
             index = 0;
-            stackList[index] = value;
+            list[index] = value;
         }
     }
 
@@ -181,17 +276,17 @@ namespace TwoSine{
         get
         {
             index++;
-            if (index==stackList.Count)
-                index=stackList.Count-1;
-            return stackList[index];
+            if (index==list.Count)
+                index=list.Count-1;
+            return list[index];
         }
 
         set
         {   
             index++;
-            if (index==stackList.Count)
-                index=stackList.Count-1;
-            stackList[index] = value;
+            if (index==list.Count)
+                index=list.Count-1;
+            list[index] = value;
         }
 
     }
@@ -200,14 +295,14 @@ namespace TwoSine{
     {
         get
         {
-            index = stackList.Count-1;
-            return stackList[index];
+            index = list.Count-1;
+            return list[index];
         }
 
         set
         {   
-            index = stackList.Count-1;
-            stackList[index] = value;
+            index = list.Count-1;
+            list[index] = value;
         }
     }
 
@@ -217,14 +312,14 @@ namespace TwoSine{
         {
             if (index<=0) index=1;
             index--;
-            return stackList[index];
+            return list[index];
         }
 
         set
         {   
             if (index<=0) index=1;
             index--;
-            stackList[index] = value;
+            list[index] = value;
         }
 
     }
@@ -244,17 +339,20 @@ namespace TwoSine{
 
 
 
-    public override string ToString(){
-        return String.Join(",",stackList.ToArray());
+    public override string ToString()
+    {
+        return String.Join(",",list.ToArray());
     }
 
     //TODO
-    public string getter(){
+    public string getter()
+    {
         return "";
     }
 
     //TODO
-    public string setter(string stack){
+    public string setter(string stack)
+    {
         return "";
     }
 
@@ -268,41 +366,50 @@ namespace TwoSine{
         }
     }
 
-    public void indexer(string name, string code){
+    public void indexer(string name, string code)
+    {
         indexing(name, code);
     }
 
-    public void loader(string name, string code){
-        Wise newLoader = dictionary[name] as Wise;
+    public void loader(string name, string code)
+    {
+    
+            Wise newLoader = dictionary[name] as Wise;
         if (newLoader==null) newLoader = new Wise();
+
         newLoader.setLoading(code);
         dictionary[name] = newLoader;
     }
 
-    public void module(string name, string code){
-        Wise newModule = dictionary[name] as Wise;
+    public void module(string name, string code)
+    {
+        
+            Wise newModule = dictionary[name] as Wise;
         if (newModule==null) newModule = new Wise();
+
         newModule.setIndexing(code);
         dictionary[name] = newModule;
     }
 
     //TODO
-    public void WON(str script){
+    public void WON(string script)
+    {
 
     }
 
     //TODO
-    public void JSON(string script){
+    public void JSON(string script)
+    {
 
     }
 
     //TODO
-    public void XML(string script){
+    public void XML(string script)
+    {
 
     }
 
 }
-
 }
 /*
 Array.prototype.plus = function(){if (!this[-1]){this[-1] = [,[]];}else this.pus++;return this[this.mus][this.pus]=[];}
