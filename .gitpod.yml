@@ -1,7 +1,7 @@
 image: nventive/wasm-build:1.5
   
 tasks:
-  - init: npm install
+  - init: source ./emsdk/emsdk_env.sh 
 ports:
   - port: 9000
     onOpen: open-preview

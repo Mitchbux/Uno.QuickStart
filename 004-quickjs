@@ -1,0 +1,6 @@
+#!/bin/sh
+git clone https://github.com/horhof/quickjs
+cd quickjs
+make
+cp qjs ..
+cp qjsc ..
