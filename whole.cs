@@ -12,7 +12,7 @@ namespace TwoSine{
 
         public string before(this string s, string b){
             if (s.indexOf(b)>-1) return s.Substring(0, s.indexOf(b)); else return Strings.empty;}
-            
+
         public string replace(this string s, string a, string b){
             return String.Join(s.Split(a), b);}
 
@@ -229,6 +229,7 @@ namespace TwoSine{
 
     }
 
+    // TODO : PLUS - MINUS
     public int pus=-1;
     public int mus=1;
 
@@ -239,15 +240,20 @@ namespace TwoSine{
     public void minus(){
 
     }
+    // TODO
+
+
 
     public override string ToString(){
         return String.Join(",",stackList.ToArray());
     }
 
+    //TODO
     public string getter(){
         return "";
     }
 
+    //TODO
     public string setter(string stack){
         return "";
     }
@@ -280,10 +286,12 @@ namespace TwoSine{
         dictionary[name] = newModule;
     }
 
+    //TODO
     public void WON(str script){
 
     }
 
+    //TODO
     public void JSON(string script){
 
     }
