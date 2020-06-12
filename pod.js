@@ -1,7 +1,7 @@
 
 str [msg] {
     Trying to work with :
-    
+
 }
 ,
 
@@ -9,28 +9,27 @@ str [msg] {
 [CurrentDir] { CurrentDir=os.getcwd(); CurrentDir.pop(this); } 
 
 [getopt] {    
+        var opt = stack;
+        var c = js.commandLine;
 
-    var opt = {
-        "": (filename) => {return js.upload(filename);},
-        "-get": (id) => {return js.downloadFile(id);}
-    }
-
-    var c = js.commandLine;
-    getopt = (opt.hasOwnProperty(c[0]) ?opt[c[0]](c[1]):opt[""](c[0]));  
-}
+    getopt = (opt.hasOwnProperty(c[0]) ?opt[c[0]](c[1]):opt[""](c[0])); }
 
 [upload] { upload =  stack + " : toCloud"; }
 
 [downloadFile] { downloadFile = "fromCloud : " + stack; }
 
 
-{try{
+{
+    var options =  {
+        "": (filename) => {return js.upload(filename);},
+        "-get": (id) => {return js.downloadFile(id);}
+    };
 
     console.log(js.CurrentDir());
 
-    return js.str.msg + js.getopt();
+    return js.str.msg + js.getopt(options);
 
-}catch(ex){console.log(js.str.usage());}}
+}
 
 str [usage] {
 usage :    
