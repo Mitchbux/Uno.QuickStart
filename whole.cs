@@ -1,14 +1,17 @@
 using System; using System.IO; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Net; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp; using System.CodeDom.Compiler;
 
-namespace TwoSine{ public class Wise : DynamicObject
+namespace TwoSine{
+    
+    public delegate string load(string added);
+    public delegate void indexa(string name, string code);
+    public delegate void filter(string those, string stack, ref String result);
+
+public class Wise : DynamicObject
 {
     
     Dictionary<string, dynamic> dictionary = new Dictionary<string, dynamic>();
     List<string> list = new List<string>();
 
-    public delegate string load(string added);
-    public delegate void indexa(string name, string code);
-    public delegate void filter(string those, string stack, ref String result);
 
     private load reloading;
     private indexa indexing;
@@ -336,13 +339,40 @@ namespace TwoSine{ public class Wise : DynamicObject
         private static CompilerParameters parameters = new CompilerParameters();
 
 
-        public static object eval(string code, string stack="")
+        public static object evalObject(string code, string stack="")
         {
-            
-
+            Type codeType;
             code = "using System; using System.IO; using TwoSine; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp;\n"+
-                " namespace TwoSine{ public delegate string load(string added); public class Code{public static TwoSine.load Block(dynamic cs, string stack){ "+code+" return null; }}} ";
+                " namespace TwoSine{ public class Code{public static Object Block(dynamic cs, string stack){ "+code+" return \"\"; }}} ";
+            return TryCompilerResults(code, "Block", out codeType).Invoke(codeType, new object[]{cs, stack});
+        }
 
+        public static object evalLoad(string code, dynamic those=null)
+        {
+            Type codeType;
+            code = "using System; using System.IO; using TwoSine; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp;\n"+
+                " namespace TwoSine{ public delegate string load(string added); public class Code{public static TwoSine.load Load(dynamic cs, dynamic those){ "+code+" return null; }}} ";
+            return TryCompilerResults(code, "Load", out codeType).Invoke(codeType, new object[]{cs, those});
+        }
+
+        public static object evalIndexa(string code, dynamic those=null)
+        {
+            Type codeType;
+            code = "using System; using System.IO; using TwoSine; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp;\n"+
+                " namespace TwoSine{ public delegate void indexa(string name, string code);public class Code{public static TwoSine.indexa Index(dynamic cs, dynamic those){ "+code+" return null; }}} ";
+            return TryCompilerResults(code, "Index", out codeType).Invoke(codeType, new object[]{cs, those});
+        }
+
+        public static object evalFilter(string code, dynamic those=null)
+        {
+            Type codeType;
+            code = "using System; using System.IO; using TwoSine; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp;\n"+
+                " namespace TwoSine{ public delegate void filter(string those, string stack, ref String result); public class Code{public static TwoSine.filter Filter(dynamic cs, dynamic those){ "+code+" return null; }}} ";
+            return TryCompilerResults(code, "Filter", out codeType).Invoke(codeType, new object[]{cs, those});
+        }
+
+        public static object TryCompilerResults(string code, string method, out Type codeType)
+        {
             CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
             if (results.Errors.HasErrors)
             {
@@ -356,9 +386,9 @@ namespace TwoSine{ public class Wise : DynamicObject
             
 
             Assembly assembly = results.CompiledAssembly;
-            Type codeType = assembly.GetType("TwoSine.Code");
-            MethodInfo block = codeType.GetMethod("Block");
-            return block.Invoke(codeType, new object[]{cs, stack});
+            codeType = assembly.GetType("TwoSine.Code");
+            MethodInfo block = codeType.GetMethod(method);
+            return block;
         }
 
         public static void CreateReferences()
