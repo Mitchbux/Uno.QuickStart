@@ -1,0 +1,3 @@
+#!/bin/sh
+./qjsc -o whole.c -e wmain.js
+gcc whole.c -o whole -L./quickjs -I./quickjs -lquickjs -lm -ldl

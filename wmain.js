@@ -19,7 +19,7 @@ var loadFile = std.loadFile;
 
 var js=getRoot();
 
-var commandLine = scriptArgs.slice(2);
+js.commandLine = scriptArgs.slice(2);
 
 js.WON(loadFile(scriptArgs[1]));
 console.log(js.toString());
