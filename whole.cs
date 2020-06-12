@@ -371,7 +371,7 @@ public class Wise : DynamicObject
             return TryCompilerResults(code, "Filter", out codeType).Invoke(codeType, new object[]{cs, those});
         }
 
-        public static object TryCompilerResults(string code, string method, out Type codeType)
+        public static MethodInfo TryCompilerResults(string code, string method, out Type codeType)
         {
             CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
             if (results.Errors.HasErrors)
@@ -417,9 +417,8 @@ public class Wise : DynamicObject
                     //cs.module("write","(name, code) => { File.WriteAllBytes(name, Encoding.UTF8.GetBytes(code));}");
                     //cs.module("str","(name, code) => {this.name = code;} ");
                     //cs.module("cs","(name, code) => {cs.name = eval(code);} ");
-                    dynamic ok = eval("cs.add(\"Hello\"); return (hello)=>{return hello;};");
-                    Console.WriteLine(ok("Good Evening, Welcome !"));
-                    Console.WriteLine(eval("cs.add(\"World\");return (okay)=>{return \"=>\";};"));
+                    evalLoad("cs.add(\"Hello\");");
+                    evalLoad("cs.add(\"World\");");
                     cs.WON(script);                    
                 }
                 catch(Exception ex)
