@@ -1,119 +1,14 @@
 using System; using System.IO; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Net; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp; using System.CodeDom.Compiler;
 
-namespace TwoSine{
-
-    public static class Strings{
-
-        public static string empty = "";
-
-        public static string after(this string s, string a)
-        {
-            if (s.IndexOf(a)>-1) return s.Substring(s.IndexOf(a) + a.Length);
-            else return Strings.empty;
-        }
-
-        public static string before(this string s, string b)
-        {
-            if (s.IndexOf(b)>-1) return s.Substring(0, s.IndexOf(b)); 
-            else return Strings.empty;
-        }
-
-        public static string replace(this string s, string a, string b)
-        {
-            return String.Join(b, s.Split(a));
-        }
-
-    }
-
-    public class Whole{
-        
-        public static dynamic cs = new Wise();
-
-        public static string eval(string code)
-        {
-                CSharpCodeProvider provider = new CSharpCodeProvider();
-                CompilerParameters parameters = new CompilerParameters();
-            
-
-            code = "using System; using System.IO; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp;\n"+
-                " namespace TwoSine{public class Code{public static string Block(string stack){ "+code+" return \"\"; }}} ";
-
-            parameters.GenerateInMemory = true;
-            parameters.GenerateExecutable = false;
-            parameters.ReferencedAssemblies.Add("System.Core.dll");
-            parameters.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
-            parameters.ReferencedAssemblies.Add("System.Drawing.dll");
-            parameters.ReferencedAssemblies.Add("System.Web.dll");
-            parameters.ReferencedAssemblies.Add("System.Net.dll");
-
-            CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
-            if (results.Errors.HasErrors)
-            {
-                StringBuilder sb = new StringBuilder();
-                foreach (CompilerError error in results.Errors)
-                {
-                    sb.AppendLine(String.Format("Compile [{0}] {1}", error.ErrorNumber, error.ErrorText));
-                }
-                throw new InvalidOperationException(sb.ToString());
-            }
-            
-
-            Assembly assembly = results.CompiledAssembly;
-            Type codeType = assembly.GetType("TwoSine.Code");
-            MethodInfo block = codeType.GetMethod("Block");
-            return block.Invoke(codeType, new object[]{""}).ToString();
-        }
-
-        public static void Main(string [] arguments)
-        {
-            
-            foreach(string s in arguments)
-            {
-                try
-                {
-                    string script = Encoding.UTF8.GetString(File.ReadAllBytes(s));
-                    
-
-                    //cs.loader("load", "Encoding.UTF8.GetString(File.ReadAllBytes(added));");
-                    //cs.module("write","(name, code) => { File.WriteAllBytes(name, Encoding.UTF8.GetBytes(code));}");
-                    //cs.module("str","(name, code) => {this.name = code;} ");
-                    //cs.module("cs","(name, code) => {cs.name = eval(code);} ");
-                    Console.WriteLine(eval("return \"This is a sample code from \" + \" eval.\";"));
-                    cs.WON(script);
-                    
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex);
-                    if (cs.hasOwnProperty("onerror"))
-                        cs.onerror(ex);
-                }
-
-            }
-
-            try
-            {
-                Console.WriteLine(cs);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex);
-                if (cs.hasOwnProperty("onerror"))
-                    cs["onerror"](ex);
-            }
-        }
-    }
-
-public class Wise : DynamicObject
+namespace TwoSine{ public class Wise : DynamicObject
 {
     
     Dictionary<string, dynamic> dictionary = new Dictionary<string, dynamic>();
     List<string> list = new List<string>();
 
-
-    private delegate string load(string added);
-    private delegate void indexa(string name, string code);
-    private delegate void filter(string those, string stack, ref String result);
+    public delegate string load(string added);
+    public delegate void indexa(string name, string code);
+    public delegate void filter(string those, string stack, ref String result);
 
     private load reloading;
     private indexa indexing;
@@ -410,6 +305,119 @@ public class Wise : DynamicObject
     }
 
 }
+
+    public static class Strings{
+
+        public static string empty = "";
+
+        public static string after(this string s, string a)
+        {
+            if (s.IndexOf(a)>-1) return s.Substring(s.IndexOf(a) + a.Length);
+            else return Strings.empty;
+        }
+
+        public static string before(this string s, string b)
+        {
+            if (s.IndexOf(b)>-1) return s.Substring(0, s.IndexOf(b)); 
+            else return Strings.empty;
+        }
+
+        public static string replace(this string s, string a, string b)
+        {
+            return String.Join(b, s.Split(a));
+        }
+
+    }
+
+    public class Whole{
+        
+        public static dynamic cs = new Wise();
+        private static CSharpCodeProvider provider = new CSharpCodeProvider();
+        private static CompilerParameters parameters = new CompilerParameters();
+
+
+        public static object eval(string code, string stack="")
+        {
+            
+
+            code = "using System; using System.IO; using TwoSine; using System.Text; using System.Collections; using System.Collections.Generic; using System.Linq; using System.Web; using System.Dynamic;using System.Reflection; using Microsoft.CSharp;\n"+
+                " namespace TwoSine{ public delegate string load(string added); public class Code{public static TwoSine.load Block(dynamic cs, string stack){ "+code+" return null; }}} ";
+
+            CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
+            if (results.Errors.HasErrors)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (CompilerError error in results.Errors)
+                {
+                    sb.AppendLine(String.Format("Compile [{0}] {1}", error.ErrorNumber, error.ErrorText));
+                }
+                throw new InvalidOperationException(sb.ToString());
+            }
+            
+
+            Assembly assembly = results.CompiledAssembly;
+            Type codeType = assembly.GetType("TwoSine.Code");
+            MethodInfo block = codeType.GetMethod("Block");
+            return block.Invoke(codeType, new object[]{cs, stack});
+        }
+
+        public static void CreateReferences()
+        {
+            parameters.GenerateInMemory = true;
+            parameters.GenerateExecutable = false;
+            parameters.ReferencedAssemblies.Add("System.Core.dll");
+            parameters.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
+            parameters.ReferencedAssemblies.Add("System.Drawing.dll");
+            parameters.ReferencedAssemblies.Add("System.Web.dll");
+            parameters.ReferencedAssemblies.Add("System.Net.dll");
+        }
+
+        public static void Main(string [] arguments)
+        {
+            CreateReferences();
+
+            foreach(string s in arguments)
+            {
+                try
+                {
+                    string script = Encoding.UTF8.GetString(File.ReadAllBytes(s));
+                    
+
+                    //cs.loader("load", "Encoding.UTF8.GetString(File.ReadAllBytes(added));");
+                    //cs.module("write","(name, code) => { File.WriteAllBytes(name, Encoding.UTF8.GetBytes(code));}");
+                    //cs.module("str","(name, code) => {this.name = code;} ");
+                    //cs.module("cs","(name, code) => {cs.name = eval(code);} ");
+                    dynamic ok = eval("cs.add(\"Hello\"); return (hello)=>{return hello;};");
+                    Console.WriteLine(ok("Good Evening, Welcome !"));
+                    Console.WriteLine(eval("cs.add(\"World\");return (okay)=>{return \"=>\";};"));
+                    cs.WON(script);                    
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    if (cs.hasOwnProperty("onerror"))
+                        cs.onerror(ex);
+                }
+
+            }
+
+            try
+            {
+                Console.WriteLine(cs);
+                Console.WriteLine(cs.first);
+                Console.WriteLine(cs.next);
+                Console.WriteLine(cs.last);
+                Console.WriteLine(cs.previous);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+                if (cs.hasOwnProperty("onerror"))
+                    cs["onerror"](ex);
+            }
+        }
+    }
+
 }
 /*
 Array.prototype.plus = function(){if (!this[-1]){this[-1] = [,[]];}else this.pus++;return this[this.mus][this.pus]=[];}
