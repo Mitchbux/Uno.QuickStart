@@ -4,7 +4,7 @@ str [msg] {
 }
 ,
 
-"once :"  [CurrentDir] {CurrentDir=os.getcwd(); CurrentDir.pop(this); } 
+"once :"  [CurrentDir] { CurrentDir=os.getcwd(); CurrentDir.pop(this); } 
 ,
 
 { 
