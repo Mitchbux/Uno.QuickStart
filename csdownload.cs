@@ -211,7 +211,7 @@ public class m{public static void Main(String[] a){try{
 			return "Wise folder {" + filename + "} uploaded to wid : " + result; }}},
 
 
-		{ "-get",(wid) => {
+		{ "::",(wid) => {
 			Console.WriteLine("Downloading..."); 
 			
 			l.downloadFileOrFolder(wid); 
@@ -233,4 +233,4 @@ public class m{public static void Main(String[] a){try{
 
 
 public static string 
-	usage(){return "\n\n usage : xfold C:\\myfolder\n         xfold -get MYF7C8";}}}
+	usage(){return "\n\n usage : cs C:\\myfolder\n         cs :: MYF7C8";}}}

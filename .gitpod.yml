@@ -2,7 +2,7 @@ image: nventive/wasm-build:1.5
 
 ports:
   # Default port for the SampleApp
-  - port: 8000
+  - port: 9000
     onOpen: open-preview
 
   # Port for the Remote Control server
