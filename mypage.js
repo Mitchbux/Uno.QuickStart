@@ -1,35 +1,42 @@
-str [msg] {
-    This is multiline.
-    Zen up world. 
-},"once :"  
 
-[download] { download = "fromCloud : " + stack; }
 
-[css]{
-    body {background-color:#202020;color:#fff;}
-    span {color:#eee;}
-}
+  my own [filter] { filter += eval((this.toString())); },
 
-body html [span] {
-    Hello,<br/>
-    <b><pre>${js.str.msg}</pre></b>
-}
+  my ("once"), 
+  my [collection] {collection = "<node>" + js.my.own.filter() + "</node>"; },
 
-body html span [p] {
-    <div class="footer">Feel free to use and distribute</div>
-}
+  
+  
+  # Module template example --
+  module [book] {<br/><a 
+    class="button is-info" 
+    style="font-size: 9pt;"  
+    href="${code}"> 
+    <fontawesome><i class="fas fa-globe"></i></fontawesome>&nbsp;
+     ${name} 
+    </a> <br/>
 
-body html [span] p div.footer { ${js.download('MyPage')} } 
-[onclick] {
+    ${js.my.own.add("js.my.book['"+name+"']") ? "" : ""}
+  },
 
-        if (!js.counter) 
-            js.counter = 0;
+  
+  my book 
+  [MP3] { https://mitchbux.github.io/ok.github.io/DrOkomode.mp3 }
+  [Editor] { https://spck.io/dark }
+  [Delivered] { https://urlz.fr/duyI }
+  [Code] { https://repl.it/@DanyCase/Delivered#index.html }
+  [Playtime] { https://mitchbux.github.io/ }
+  [Twitter] { https://twitter.com/gotocaca },
+  
 
-    alert("You clicked " + (++js.counter) + " time(s)");
 
-    js.str.msg += "Click here to rewrite click.\\n";
-
-}
-
-[onerror] { return "Something went wrong."; }
-
+  str [toc] { :: bookmarks :: },
+  json [footer] { label : " :::/ by Mitchbux /::: ", line : "<br/>" } ,
+  
+  ## Global stack
+  {
+    return js.str.toc + js.my.collection() 
+    + js.footer.line + js.footer.label + js.footer.line;   
+  }
+  
+  

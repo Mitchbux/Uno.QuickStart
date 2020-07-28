@@ -2,14 +2,13 @@
 import * as std from "std";
 import * as os from "os";
 
-
 //Array extension
 Array.prototype.index = 0;
 Array.prototype.forEach = function(stack, body){for(var key=0;key<this.length;key++) body.apply(this[key], [stack]);}
 Array.prototype.add = Array.prototype.push;
 Object.defineProperty(Array.prototype,"first",{get: function(){return this[this.index=0];}, set: function(v){this[this.index=0] = v;}});
 Object.defineProperty(Array.prototype,"next",{get: function(){return this[this.index<this.length?++this.index:0];}, set: function(v){if((++this.index)<this.length){this[this.index]=v;} else this.add(v);}});
-Object.defineProperty(Array.prototype,"last",{get: function(){return this[this.index=0];}, set: function(v){this[this.index=0] = v;}});
+Object.defineProperty(Array.prototype,"last",{get: function(){return this[this.index=(this.length-1)];}, set: function(v){this[this.index=(this.length-1)] = v;}});
 Object.defineProperty(Array.prototype,"previous",{get: function(){return this[this.index>0?--this.index:this.length-1];}, set: function(v){if((--this.index)>0){this[this.index]=v;} else{ this.index=0; this.unshift(v); }}});
 
 Array.prototype.plus = function(){if (!this[-1]){this[-1] = [,[]];}else this.pus++;return this[this.mus][this.pus]=[];}
@@ -23,7 +22,7 @@ Array.prototype.setter = function(stack){return this.value.getter(stack);};
 Array.prototype.indexer = function(n,b){var e ="this.{n} = function(v){var {n} = ''; this.forEach(v, function(stack){" +b + "}); return {n}; };"; eval(e.replace("{n}",n)); };
 Object.defineProperty(Array.prototype,"stack",{get: function(){ return this.getter();},set: function(stack){ return this.setter(stack);}});
 Array.prototype.module=function(name, stack){ eval(`Object.defineProperty(Array.prototype,name,  {get: function(){if (!this._${name})this._${name}=[];${stack} return this._${name};},set: function(stack){if (!this._${name})this._${name}=stack;}});`);};
-Array.prototype.module.indexer = function(name,code){this(name,"this._"+name+".indexer =function(name, code){this[name]=`"+code.replace("\\n", "\\\\n")+"`;};");};
+Array.prototype.module.indexer = function(name,code){this(name,"this._"+name+".indexer =function(name, code){this[name]=`"+code+"`;};");};
 Array.prototype.loader=function(name, stack){ eval(`Object.defineProperty(Array.prototype,name,  {get: function(){if (!this._${name})this._${name}=[];${stack} return this._${name};},set: function(stack){if (!this._${name})this._${name}=stack;}});`);};
 Array.prototype.loader.indexer = function(name,stack){this(name, "this._"+name+".add = function(added){ this.push(`"+stack+"`); };this._"+name+".unshift = function(added){ this.unshift(`"+stack+"`); };");};
 
@@ -35,7 +34,7 @@ Object.defineProperty(swon, "here", {get:function(){return this.text[this.char];
 
 var bwon= [function(){swon.rootStack.push(swon.root); swon.root = swon.node;  return "";}, function(){swon.root = swon.rootStack.pop(); return "";}, function(){swon.node = swon.root; swon.name = ""; return "";}
 , function(){var code = swon.until("{","}");code="function(stack){"+code+"}";return swon.node +".getter="+code+";"}, function(){return "";}
-, function(){var q="`"; if ((swon.node.indexOf("module")>-1) || (swon.node.indexOf("loader")>-1)){q="'";} var idx = swon.until("", "]"); var skip = swon.until("","{"); var cde = swon.until("{","}"); return swon.node + ".indexer("+doubleq(idx) + "," + q + cde + q + ");"; }, function(){return "";}
+, function(){var q="`"; if ((swon.node.indexOf("module")>-1) || (swon.node.indexOf("loader")>-1)){q="'";} var idx = swon.until("", "]"); var skip = swon.until("","{"); var cde = swon.until("{","}"); return swon.node + ".indexer("+doubleq(idx) + "," + q + cde.replace(q, "\\" + q).replace("\\n","\\\\n").replace("\n","\\n") + q + ");"; }, function(){return "";}
 , function(){var result = swon.node +".cell="+swon.node+".plus();"; swon.node += ".cell"; return result;}, function(){swon.stack = "value"; return "";}
 , function(){var result = swon.node +".cell="+swon.node+".minus();"; swon.node += ".cell"; return result;}, function(){return "";}
 , function(){var data = "`" + swon.until("", "'") + "`"; return swon.node + ".add(" + data + ");";}, function(){var data = "`" +swon.until("", "\"")+ "`"; return swon.node + ".add(" + data + ");";}];
@@ -65,7 +64,8 @@ var js=[];
 js.loader.indexer("load", "loadFile(added);");
 js.module("write","this._write.to = this._write.indexer = function(name, code){ writeFile(name, code);};");
 js.module("str","this._str.indexer =function(name, code){this[name]=code;};");
-js.module("js","this._js.indexer =function(name, code){js.JSON('{'+code+'}',js[name]={});};");
+js.module("json","this._json.indexer =function(name, code){js.JSON('{'+code+'}',js[name]={});};");
+
 
 export function getRoot(){
     return js;
